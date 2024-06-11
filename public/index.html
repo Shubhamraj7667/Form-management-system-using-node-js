@@ -11,9 +11,10 @@
   </head>
   <body>
    <div class="container my-2">
+    <div id="message" class="m-2"></div>
     <h2 class = "h2">Fill the data</h2>
 
-    <form>
+    <form id = "myform">
         <div class="mb-3">
             <label  class="form-label">Name</label>
             <input type="Text"
@@ -24,34 +25,129 @@
           </div>
         <div class="mb-3">
           <label  class="form-label">Email address</label>
-          <input type="email" class="form-control" id="formEmail" >
+          <input type="email"  name = "email" class="form-control" id="formEmail" >
           
         </div>
         <div class="mb-3">
           <label class="form-label">Phone Number</label>
-          <input type="text" class="form-control" id="formNumber">
+          <input type="text" name = "phone" class="form-control" id="formNumber">
         </div>
         
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary enableOnInput">
+          Submit
+        </button>
       </form>
    </div>
    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 
    <script>
 
+    //number input validaation
+    function numberValidation(){
+      // console.log("number validation");
+      $(".errormsg2").remove();
+      var a = $("#formNumber").val();
+      var filter = /^[0-9]*$/;
+      if(filter.test(a)){
+        // console.log("------", filter.test(a));
+        if(a.length != 10){
+        $("#formNumber").after(`<div class = "errormsg2">Please enter 10 digit number</div>`);
+        return 0;
+        }else{
+          $(".errormsg2").remove();
+          return 1;
+        }
+      }else{
+        $("#formNumber").after(`<div class = "errormsg2>Please enter correct phone number</div>`);
+        return 0;
+      }
+    }
+
+    //name field validation
+    function nameValidation(){
+      var nameRegex = /^[A-Za-z]+$/;
+      var nameInput = $("#formName").val();
+
+      $(".errormsg").remove();
+      if(nameInput.length <10 && nameRegex.test(nameInput)){
+        return 1;
+      }else{
+        $("#formName").after(`<div class = "errormsg">Invalid Name! </div>`);
+        return 0;
+      }
+    }
+
+    //email input validation
+    function emailValidation(){
+         $(".errormsg").remove();
+         var emailData = $("#formEmail").val();
+         var testEmail = /^[A-Z0-9._%+-]+@([A-Z0-9-]+\.)+[A-Z]{2,4}$/i;
+         if(testEmail.test(emailData)){
+          $(".errormsg").remove();
+          return 1;
+         }else{
+          $("#formEmail").after(`<div class = "errormsg">Email cannot be empty</div>`);
+          return 0;
+         }
+    }
+
+      //disabling button
+    function buttonFade(){
+      $(".enableOnInput").prop("disabled",true);
+      if(nameValidation() == 1 && numberValidation() == 1 && emailValidation()){
+        $(".enableOnInput").prop("disabled",false);
+      }
+    }
+
         $(document).ready(function(){
             console.log("jquery is working");
+                 $(".enableOnInput").prop("disabled",true);
+      
+             $("#formName").keyup(function(){
+              nameValidation();
+              buttonFade();
+             })
+             $("#formEmail").keyup(function(){
+              emailValidation();
+              buttonFade();
 
-            $("#formName").on("keyup", function(){
-             if($("#formName").val() != ""){
-                   if($(this).val().length >60){
-               alert("name cannot be greater than 60 letters");
-                   }
-                
-            }else{
-                alert("name cannot be empty");
-            };   
-            })
+             })
+             $("#formNumber").keyup(function(){
+              numberValidation();
+              buttonFade();
+             })
+
+             $('#myform').submit(function(e){
+              e.preventDefault();
+              
+              var ajaxData =  $(this).serialize();
+              console.log("----",ajaxData);
+              
+              $.ajax({
+                type: "post",
+                url: "/create",
+                data: ajaxData,
+                success: function (result,status) {
+                  if(result.status == 201){
+                    $("#message").html(`<div class ="alert alert-success" role = "alert">Data inserted successfully.</div>`);
+
+                    setTimeout(() =>{
+                      window.location.replace(result.url);
+                    }, 2000);
+                  }else{
+                    $("#message").html(`<div class ="alert alert-danger" role = "alert">Something went wrong.</div>`);
+
+                  }
+                  
+                },
+                error : function(status,err){
+                  console.log(err);
+                }
+              });
+
+
+             })
+            
             
             
         });
