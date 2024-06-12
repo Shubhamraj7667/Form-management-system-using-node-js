@@ -83,16 +83,16 @@ $('.delete_student').click(function(e){
         data: del_info,
         dataType: "dataType",
         success: function (response, status) {
-            console.log(response);
+            console.log(response,"#card_" + clicked_id);
 
-            if(response.status == 200){
+            if(status == 200){
                 $("#card_" + clicked_id).fadeOut("slow"); 
             }
             
         },
         error: function (err,status) {
 
-            console.log(err);
+            console.log(err,"#card_" + clicked_id);
             
         }
     });
