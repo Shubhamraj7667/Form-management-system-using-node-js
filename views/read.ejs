@@ -13,7 +13,7 @@
 
     <div class="container">
         <div class="d-flex flex-rows justify-content-between bd-highlight my-3">
-            <h1 class = "h3 text-center">All data [<span><%-rows.length%></span>]</h1>
+            <h1 class = "h3 text-center">All data [<span id = "row_count"><span><%-rows.length%></span></span>]</h1>
             <a href="/">
                 <button class = "btn btn-success">Create</button>
             </a>
@@ -32,7 +32,7 @@
                       <h5 class="card-title text-dark"><%- eachData.name %></h5>
                       <h6 class="card-subtitle mb-2 text-body-secondary text-muted"><%- eachData.email %></h6>
                       <p class="card-text text-muted"><%- eachData.phone %></p>
-                      <a href="#" class="card-link text-success">Edit</a>
+                      <a href="/update-student?id=" class="card-link text-success update_student">Edit</a>
                       <a href="#" class="card-link text-danger delete_student" id = "<%-eachData.id%>">Delete</a>
                     </div>
                   </div>
@@ -81,12 +81,20 @@ $('.delete_student').click(function(e){
         type: "delete",
         url: "/delete_student",
         data: del_info,
-        dataType: "dataType",
         success: function (response, status) {
+            e.preventDefault();
             console.log(response,"#card_" + clicked_id);
 
             if(status == 200){
-                $("#card_" + clicked_id).fadeOut("slow"); 
+                $("#card_" + clicked_id).fadeToggle("slow"); 
+                
+
+                if(response.row>0){
+                    $("#row_count").html(`<span>${response.row}</span>`);
+                }else{
+                    $("#row_count").html("");
+                    $(".row").after(`<div class = "col-md-12"><h1 class = "h2 text-center">No data found</h1></div> `);
+                }
             }
             
         },
